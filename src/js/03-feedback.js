@@ -4,31 +4,26 @@ const form = document.querySelector('.feedback-form');
 
 const FEEDBACK = 'feedback-form-state';
 
-const formData = {};
+const formData = localStorage.getItem(FEEDBACK) ? JSON.parse(localStorage.getItem(FEEDBACK)) : {};
 
-if (localStorage.getItem(FEEDBACK)) {
-  const data = JSON.parse(localStorage.getItem(FEEDBACK));
+Object.keys(formData).forEach(item => (form.elements[item].value = formData[item]));
 
-  form.elements.email.value = data.email;
-  form.elements.message.value = data.message;
-}
-
-const saveFormData = () => {
-  formData.email = form.elements.email.value;
-  formData.message = form.elements.message.value;
+const saveFormData = e => {
+  formData[e.target.name] = e.target.value;
 
   localStorage.setItem(FEEDBACK, JSON.stringify(formData));
 };
 
-const clearStorage = () => {
-  localStorage.removeItem(FEEDBACK);
-};
-
 const sendFeedback = e => {
   e.preventDefault();
+  const formInputNames = Object.keys(e.currentTarget.elements).filter(item => isNaN(item));
+  if (!formInputNames.every(item => e.currentTarget.elements[item].value)) {
+    alert('Заповніть усі поля форми!!!');
+    return;
+  }
   form.reset();
   console.log(JSON.parse(localStorage.getItem(FEEDBACK)));
-  clearStorage();
+  localStorage.removeItem(FEEDBACK);
 };
 
 form.addEventListener('submit', sendFeedback);
